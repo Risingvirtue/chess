@@ -60,7 +60,7 @@ function drawBoard() {
 function move(info) {
 	var id = info.id;
 	
-	var y = id[1];
+	var y = parseInt(id[1]);
 	var x = map[id[0]];
 	var piece = board[y][x];
 	if (!active && piece != '0') {
@@ -70,13 +70,21 @@ function move(info) {
 		return;
 	}
 	if (active && piece == '0') {
-		movePiece(y, x, id);
+		
+		if (activePiece.move(y,x)) {
+			movePiece(y, x, id);
+		} else {
+			active = false;
+		}
 		return;
 	}
-	
 	if (active && piece != '0') {
 		
-			//movePiece(y, x, id);
+		if (activePiece.take(y,x)) {
+			movePiece(y, x, id);
+		} else {
+			active = false;
+		}
 		
 		
 		return;
@@ -89,7 +97,7 @@ function movePiece(y, x, id) {
 	$('#' + prevId).css('background-color', 'blue');
 	board[activePiece.y][activePiece.x] = '0';
 	board[y][x] = activePiece;
-	activePiece.x =x; activePiece.y = y;
+	activePiece.x = x; activePiece.y = y;
 	$('#' + id).css('background-image', activePiece.i);
 	active = false;
 }
