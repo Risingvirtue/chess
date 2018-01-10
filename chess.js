@@ -1,7 +1,10 @@
 var letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 	//0 = white 1 = black
 	//1 = pawn 2= king 3=queen 4=bishop 5=knight 6 =rook 0= clear
-	var board;
+var board;
+var active = false;
+var activePiece;
+var map = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7};
 $(document).ready(function(){
 	
 	
@@ -13,14 +16,12 @@ $(document).ready(function(){
 		$('#board').append(div.join('\n'));
 		for (var j =0; j < 8; j++) {
 			var letter = letters[j];
-			$("#" + i).append('<button id="' + letter + i + '" class="col-lg-1 col-md-1 col-sm-1 col-xs-1" style="width: 12.499999995%"></button>');
+			$("#" + i).append('<button id="' + letter + i + '" class="col-lg-1 col-md-1 col-sm-1 col-xs-1" style="width: 12.499999995%" onclick="move(' + letter + i + ')"></button>');
 		}
 	}
 	square();
 	newBoard();
 	drawBoard();
-	
-	
 });
 
 
@@ -51,121 +52,48 @@ function drawBoard() {
 			var piece = board[i][j];
 			if (piece != '0') {
 				piece.draw();
-				//console.log(letters[piece.x] + piece.y);
 			}
 		}
 	}
 }
 
-function blackPawn(y,x) {
-	this.i = "url(./img/normal/bPawn.png)";
-	this.x = x;
-	this.y = y;
-	this.draw = function() {
-		console.log("#" + letters[this.x] + this.y, this.i);
-		$("#" + letters[this.x] + this.y).css('background-image', this.i);
+function move(info) {
+	var id = info.id;
+	
+	var y = id[1];
+	var x = map[id[0]];
+	var piece = board[y][x];
+	if (!active && piece != '0') {
+		$('#' + id).css('background-color', 'red');
+		activePiece = piece;
+		active = true;
+		return;
+	}
+	if (active && piece == '0') {
+		movePiece(y, x, id);
+		return;
+	}
+	
+	if (active && piece != '0') {
 		
+			//movePiece(y, x, id);
+		
+		
+		return;
 	}
 }
 
-function whitePawn(y,x) {
-	this.i = "url(./img/normal/wPawn.png)";
-	this.x = x;
-	this.y = y;
-	this.draw = function() {
-		$("#" + letters[this.x] + this.y).css('background-image', this.i);
-	}
+function movePiece(y, x, id) {
+	var prevId = letters[activePiece.x] + activePiece.y;
+	$('#' + prevId).css('background-image', 'none');
+	$('#' + prevId).css('background-color', 'blue');
+	board[activePiece.y][activePiece.x] = '0';
+	board[y][x] = activePiece;
+	activePiece.x =x; activePiece.y = y;
+	$('#' + id).css('background-image', activePiece.i);
+	active = false;
 }
 
-function blackRook(y,x) {
-	this.i = "url(./img/normal/bPawn.png)";
-	this.x = x;
-	this.y = y;
-	this.draw = function() {
-		$("#" + letters[this.x] + this.y).css('background-image', this.i);
-	}
-}
-
-function whiteRook(y,x) {
-	this.i = "url(./img/normal/wRook.png)";
-	this.x = x;
-	this.y = y;
-	this.draw = function() {
-		$("#" + letters[this.x] + this.y).css('background-image', this.i);
-	}
-}
-
-function blackKnight(y,x) {
-	this.i = "url(./img/normal/bKnight.png)";
-	this.x = x;
-	this.y = y;
-	this.draw = function() {
-		$("#" + letters[this.x] + this.y).css('background-image', this.i);
-	}
-}
-
-function whiteKnight(y,x) {
-	this.i = "url(./img/normal/wKnight.png)";
-	this.x = x;
-	this.y = y;
-	this.draw = function() {
-		$("#" + letters[this.x] + this.y).css('background-image', this.i);
-	}
-}
-
-function blackBishop(y,x) {
-	this.i = "url(./img/normal/bBishop.png)";
-	this.x = x;
-	this.y = y;
-	this.draw = function() {
-		$("#" + letters[this.x] + this.y).css('background-image', this.i);
-	}
-}
-
-function whiteBishop(y,x) {
-	this.i = "url(./img/normal/wBishop.png)";
-	this.x = x;
-	this.y = y;
-	this.draw = function(){
-		$("#" + letters[this.x] + this.y).css('background-image', this.i);
-	}
-}
-
-function blackKing(y,x) {
-	this.i = "url(./img/normal/bKing.png)";
-	this.x = x;
-	this.y = y;
-	this.draw = function() {
-		$("#" + letters[this.x] + this.y).css('background-image', this.i);
-	}
-}
-
-function whiteKing(y,x) {
-	this.i = "url(./img/normal/wKing.png)";
-	this.x = x;
-	this.y = y;
-	this.draw = function() {
-		$("#" + letters[this.x] + this.y).css('background-image', this.i);
-	}
-}
-
-function blackQueen(y,x) {
-	this.i = "url(./img/normal/bQueen.png)";
-	this.x = x;
-	this.y = y;
-	this.draw = function() {
-		$("#" + letters[this.x] + this.y).css('background-image', this.i);
-	}
-}
-
-function whiteQueen(y,x) {
-	this.i = "url(./img/normal/wQueen.png)";
-	this.x = x;
-	this.y = y;
-	this.draw = function() {
-		$("#" + letters[this.x] + this.y).css('background-image', this.i);
-	}
-}
 
 $(window).resize(function() {
 	square();
