@@ -1,4 +1,7 @@
 button{
 	background-size: contain;
+	border-width: 3px;
+	
+	border-color: #eee;
 	
 }

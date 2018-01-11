@@ -4,6 +4,7 @@ var letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 var board;
 var active = false;
 var activePiece;
+var activeId;
 var map = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7};
 $(document).ready(function(){
 	
@@ -64,13 +65,14 @@ function move(info) {
 	var x = map[id[0]];
 	var piece = board[y][x];
 	if (!active && piece != '0') {
-		$('#' + id).css('background-color', 'red');
+		$('#' + id).css('border-color', 'yellow');
 		activePiece = piece;
+		activeId = id;
 		active = true;
 		return;
 	}
 	if (active && piece == '0') {
-		
+		$('#' + activeId).css('border-color', '#eee');
 		if (activePiece.move(y,x)) {
 			movePiece(y, x, id);
 		} else {
@@ -79,22 +81,18 @@ function move(info) {
 		return;
 	}
 	if (active && piece != '0') {
-		
-		if (activePiece.take(y,x)) {
+		$('#' + activeId).css('border-color', '#eee');
+		if (activePiece.take(y,x, piece)) {
 			movePiece(y, x, id);
 		} else {
 			active = false;
 		}
-		
-		
 		return;
 	}
 }
 
 function movePiece(y, x, id) {
-	var prevId = letters[activePiece.x] + activePiece.y;
-	$('#' + prevId).css('background-image', 'none');
-	$('#' + prevId).css('background-color', 'blue');
+	$('#' + activeId).css('background-image', 'none');
 	board[activePiece.y][activePiece.x] = '0';
 	board[y][x] = activePiece;
 	activePiece.x = x; activePiece.y = y;
