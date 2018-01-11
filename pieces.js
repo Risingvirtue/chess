@@ -1,3 +1,63 @@
+function getArr(x0, x1) {
+	var diff = x1 - x0;
+	var sign = (x1 - x0) / Math.abs(x1 - x0); 
+	var arr = [];
+	for (var i = 1; i <= Math.abs(diff); i++) {
+		arr.push(sign*i);
+	}
+	return arr;
+}
+
+function checkDiagonal(currY, currX, y, x) {
+	var currDiff = currX - currY;
+	var diff = x - y;
+	if (currDiff != diff && y + x != currX + currY) {
+		return false;
+	}
+	return true;
+}
+
+function checkRow(currY, currX, y, x) {
+	return currY == y || currX == x;
+}
+
+function rowMove(currY, currX, y, x) {
+	var arrX = getArr(currX, x);
+	var arrY = getArr(currY, y);
+	
+	if (arrX.length == 0) {
+		arrX = arrY.map(function(a) {return 0;});
+	} else {
+		arrY = arrX.map(function(a) {return 0;});
+	}
+		
+	for (var i = 0; i < arrX.length; i++) {
+		var piece = board[currY + arrY[i]][currX + arrX[i]];
+		if (piece != '0') {
+			if (i == arrX.length - 1) {
+				return true;
+			}
+			return false;
+		}
+	}
+	return true;
+}
+
+function diagonalMove(currY, currX, y, x) {
+	var arrX = getArr(currX, x);
+	var arrY = getArr(currY, y);
+	//check empty space
+	for (var i = 0; i < arrX.length; i++) {
+		var piece = board[currY + arrY[i]][currX + arrX[i]];
+		if (piece != '0') {
+			if (i == arrX.length - 1) {
+				return true;
+			}
+			return false;
+		}
+	}
+	return true;
+}
 function blackPawn(y,x) {
 	this.i = "url(./img/normal/bPawn.png)";
 	this.x = x;
@@ -72,45 +132,20 @@ function blackRook(y,x) {
 	}
 	
 	this.move = function(y,x) {
-		if (this.y == y) {
-			var diff = x - this.x;
-			var sign = diff / (Math.abs(x - this.x));
-			
-			for (var i = 1; i < Math.abs(diff); i++) {
-				
-				var tempX = this.x + sign * i;
-				
-				var piece = board[y][tempX];
-				
-				if (piece != '0') {
-					if (tempX == x && piece.color == !this.color) {
-						return true;
-					}
-					return false;
-				}
-			}
-			return true;
-		} else if (this.x == x) {
-			var diff = y - this.y;
-			var sign = diff / (Math.abs(y - this.y));
-			
-			for (var i = 1; i <= Math.abs(diff); i++) {
-				var tempY = this.y + sign * i;
-				var piece = board[tempY][x];
-				if (piece != '0') {
-					if (tempY == y && piece.color == !this.color) {
-						return true;
-					}
-					return false;
-				}
-			}
-			return true;
+		
+		if (checkRow(this.y, this.x, y, x)) {
+			return rowMove(this.y, this.x, y, x);
 		} else {
 			return false;
 		}
 	}
 	
-	this.take = this.move;
+	this.take = function(y,x,piece) {
+		if (piece.color == this.color) {
+			return false;
+		}
+		return this.move(y,x);
+	}
 }
 
 function whiteRook(y,x) {
@@ -122,45 +157,19 @@ function whiteRook(y,x) {
 		$("#" + letters[this.x] + this.y).css('background-image', this.i);
 	}
 	this.move = function(y,x) {
-		if (this.y == y) {
-			var diff = x - this.x;
-			var sign = diff / (Math.abs(x - this.x));
-			
-			for (var i = 1; i < Math.abs(diff); i++) {
-				
-				var tempX = this.x + sign * i;
-				
-				var piece = board[y][tempX];
-				
-				if (piece != '0') {
-					if (tempX == x && piece.color == !this.color) {
-						return true;
-					}
-					return false;
-				}
-			}
-			return true;
-		} else if (this.x == x) {
-			var diff = y - this.y;
-			var sign = diff / (Math.abs(y - this.y));
-			
-			for (var i = 1; i <= Math.abs(diff); i++) {
-				var tempY = this.y + sign * i;
-				var piece = board[tempY][x];
-				if (piece != '0') {
-					if (tempY == y && piece.color == !this.color) {
-						return true;
-					}
-					return false;
-				}
-			}
-			return true;
+		if (checkRow(this.y, this.x, y, x)) {
+			return rowMove(this.y, this.x, y, x);
 		} else {
 			return false;
 		}
 	}
 	
-	this.take = this.move;
+	this.take = function(y,x,piece) {
+		if (piece.color == this.color) {
+			return false;
+		}
+		return this.move(y,x);
+	}
 }
 
 function blackKnight(y,x) {
@@ -170,6 +179,23 @@ function blackKnight(y,x) {
 	this.color = false;
 	this.draw = function() {
 		$("#" + letters[this.x] + this.y).css('background-image', this.i);
+	}
+	
+	this.move = function(y,x) {
+		var diffX = Math.abs(x - this.x);
+		var diffY = Math.abs(y - this.y);
+		if ((diffX == 1 || diffX == 2) && diffX + diffY == 3) {
+			return true;
+		}
+		return false;
+		
+	}
+	
+	this.take = function(y,x, piece) {
+		if (piece.color == this.color) {
+			return false;
+		}
+		return this.move(y,x);
 	}
 }
 
@@ -181,6 +207,22 @@ function whiteKnight(y,x) {
 	this.draw = function() {
 		$("#" + letters[this.x] + this.y).css('background-image', this.i);
 	}
+	this.move = function(y,x) {
+		var diffX = Math.abs(x - this.x);
+		var diffY = Math.abs(y - this.y);
+		if ((diffX == 1 || diffX == 2) && diffX + diffY == 3) {
+			return true;
+		}
+		return false;
+		
+	}
+	
+	this.take = function(y,x, piece) {
+		if (piece.color == this.color) {
+			return false;
+		}
+		return this.move(y,x);
+	}
 }
 
 function blackBishop(y,x) {
@@ -191,15 +233,43 @@ function blackBishop(y,x) {
 	this.draw = function() {
 		$("#" + letters[this.x] + this.y).css('background-image', this.i);
 	}
+	this.move = function(y,x) {
+		if (checkDiagonal(this.y, this.x, y, x)) {
+			return diagonalMove(this.y, this.x, y, x);
+		} else {
+			return false;
+		}
+	}
+	
+	this.take = function(y,x, piece) {
+		if (piece.color == this.color) {
+			return false;
+		}
+		return this.move(y,x);
+	}
 }
 
 function whiteBishop(y,x) {
 	this.i = "url(./img/normal/wBishop.png)";
 	this.x = x;
 	this.y = y;
-	this.color = 'white';
+	this.color = true;
 	this.draw = function(){
 		$("#" + letters[this.x] + this.y).css('background-image', this.i);
+	}
+	this.move = function(y,x) {
+		if (checkDiagonal(this.y, this.x, y, x)) {
+			return diagonalMove(this.y, this.x, y, x);
+		} else {
+			return false;
+		}
+	}
+	
+	this.take = function(y,x, piece) {
+		if (piece.color == this.color) {
+			return false;
+		}
+		return this.move(y,x);
 	}
 }
 
@@ -211,6 +281,21 @@ function blackKing(y,x) {
 	this.draw = function() {
 		$("#" + letters[this.x] + this.y).css('background-image', this.i);
 	}
+	this.move = function(y, x) {
+		var diffX = x - this.x;
+		var diffY = y - this.y;
+		if (Math.abs(diffX) <= 1 && Math.abs(diffY) <= 1) {
+			return true;
+		}
+		return false;
+	}
+	
+	this.take = function(y, x,piece) {
+		if (piece.color == this.color) {
+			return false;
+		}
+		return this.move(y,x);
+	}
 }
 
 function whiteKing(y,x) {
@@ -221,7 +306,24 @@ function whiteKing(y,x) {
 	this.draw = function() {
 		$("#" + letters[this.x] + this.y).css('background-image', this.i);
 	}
+	
+	this.move = function(y, x) {
+		var diffX = x - this.x;
+		var diffY = y - this.y;
+		if (Math.abs(diffX) <= 1 && Math.abs(diffY) <= 1) {
+			return true;
+		}
+		return false;
+	}
+	
+	this.take = function(y, x,piece) {
+		if (piece.color == this.color) {
+			return false;
+		}
+		return this.move(y,x);
+	}
 }
+
 
 function blackQueen(y,x) {
 	this.i = "url(./img/normal/bQueen.png)";
@@ -230,6 +332,24 @@ function blackQueen(y,x) {
 	this.color = false;
 	this.draw = function() {
 		$("#" + letters[this.x] + this.y).css('background-image', this.i);
+	}
+	this.move = function(y,x) {
+		var diagonal = checkDiagonal(this.y, this.x, y, x);
+		var row = checkRow(this.y, this.x, y, x);
+		if (diagonal) {
+			return diagonalMove(this.y, this.x, y, x);
+		} else if (row) {
+			return rowMove(this.y, this.x, y, x);
+		} else {
+			return false;
+		}
+	}
+	
+	this.take = function(y,x, piece) {
+		if (piece.color == this.color) {
+			return false;
+		}
+		return this.move(y,x);
 	}
 }
 
@@ -240,5 +360,23 @@ function whiteQueen(y,x) {
 	this.color = true;
 	this.draw = function() {
 		$("#" + letters[this.x] + this.y).css('background-image', this.i);
+	}
+	this.move = function(y,x) {
+		var diagonal = checkDiagonal(this.y, this.x, y, x);
+		var row = checkRow(this.y, this.x, y, x);
+		if (diagonal) {
+			return diagonalMove(this.y, this.x, y, x);
+		} else if (row) {
+			return rowMove(this.y, this.x, y, x);
+		} else {
+			return false;
+		}
+	}
+	
+	this.take = function(y,x, piece) {
+		if (piece.color == this.color) {
+			return false;
+		}
+		return this.move(y,x);
 	}
 }

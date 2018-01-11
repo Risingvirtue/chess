@@ -71,6 +71,12 @@ function move(info) {
 		active = true;
 		return;
 	}
+	
+	if (active && piece == activePiece) {
+		$('#' + activeId).css('border-color', '#eee');
+		active = false;
+		return;
+	}
 	if (active && piece == '0') {
 		$('#' + activeId).css('border-color', '#eee');
 		if (activePiece.move(y,x)) {
