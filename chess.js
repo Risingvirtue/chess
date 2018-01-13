@@ -11,6 +11,7 @@ var white = [];
 var bKing;
 var wKing;
 var turn = true;
+
 $(document).ready(function(){
 	for (var i = 7; i>=0;i--) {
 		var div = ['<div class="row board">',
@@ -70,19 +71,6 @@ function move(info) {
 	var x = map[id[0]];
 	var piece = board[y][x];
 	//cannot move when not your turn
-	if (turn) {
-		$('#turn').html("White's turn");
-	} else {
-		$('#turn').html("Black's turn");
-	}
-	
-	if (checker(turn)) {
-		$('#check').html("You are in check");
-	} else {
-		$('#check').html("");
-	}
-	//console.log(checker(turn));
-	
 	
 	if (!active && piece != '0') {
 		if (piece.color != turn) {
@@ -105,8 +93,7 @@ function move(info) {
 		$('#' + activeId).css('border-color', '#eee');
 		if (activePiece.move(y,x)) {
 			movePiece(y, x, id);
-			turn = !turn;
-			
+			changeTurn();
 		} else {
 			active = false;
 		}
@@ -116,7 +103,8 @@ function move(info) {
 		$('#' + activeId).css('border-color', '#eee');
 		if (activePiece.take(y,x, piece)) {
 			movePiece(y, x, id);
-			turn = !turn;
+			removePiece(piece);
+			changeTurn();
 		} else {
 			active = false;
 		}
@@ -125,6 +113,7 @@ function move(info) {
 }
 
 function movePiece(y, x, id) {
+	
 	$('#' + activeId).css('background-image', 'none');
 	board[activePiece.y][activePiece.x] = '0';
 	board[y][x] = activePiece;
@@ -148,7 +137,18 @@ function insertPieces() {
 	}
 }
 
+function removePiece(piece) {
+	if (piece.color) {
+		console.log(white.indexOf(piece));
+		white.splice(white.indexOf(piece), 1);
+	} else {
+		console.log(black.indexOf(piece));
+		black.splice(black.indexOf(piece), 1);
+	}
+	
+}
 function checker(bool) {
+	
 	var pieces = bool ? black : white;
 	var king = bool ? wKing : bKing;
 	for (p of pieces) {
@@ -160,6 +160,23 @@ function checker(bool) {
 	
 }
 
+function changeTurn() {
+	$('#' + activeId).css('border-color', '#eee');
+	turn = !turn;
+	active = false;
+	if (turn) {
+		$('#turn').html("White's turn");
+	} else {
+		$('#turn').html("Black's turn");
+	}
+	
+	if (checker(turn)) {
+		$('#check').html("You are in check");
+	} else {
+		$('#check').html("");
+	}
+	
+}
 $(window).resize(function() {
 	square();
 });
